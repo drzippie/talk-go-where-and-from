@@ -1,0 +1,351 @@
+Go: De donde viene y a donde va
+Una breve introducción a Go
+11 Mar 2015
+Tags: Golang, Go
+
+Antonio Cortés (DrZippie)
+Lead Architect, Ximdex
+antonio@antonicortes.com
+https://antoniocortes.com
+@drzippie
+
+* Que veremos
+
+.html html/gopher-zero.html 
+
+- Qué es Go
+- Porque nació Go
+- Donde nació Go 
+- Cuando nació Go
+- Quien creó Go
+
+y ...
+
+- Los "principios" Go
+- Go en el mundo real™
+
+* All the info in one place
+
+.link http://golang.org golang.org
+
+.image img/website.png  500 _
+ 
+ 
+
+* ¿ Qué es go ?
+
+
+.html html/gopher-two.html 
+
+
+Originalmente lo definieron como:
+
+- New
+- Experimental
+- Concurrent 
+- Garbage-collected 
+- Systems
+- Language
+
+* ¿ Qué es go ?
+
+.html html/gopher-three.html 
+- Go is a modern, general purpose language.
+- Compiles to native machine code (32-bit and 64-bit x86, ARM).
+- Statically typed.
+- Lightweight syntax.
+- Simple type system.
+- Concurrency primitives.
+
+* ¿ Qué es Go ?
+
+regular syntax (don't need a symbol table to parse)  ✙  garbage collection (only)  ✙  no header files  ✙  explicit dependencies  ✙  no circular dependencies  ✙  constants are just numbers  ✙  int and int32 are distinct types  ✙  letter case sets visibility  ✙  methods for any type (no classes)  ✙  no subtype inheritance (no subclasses)  ✙  package-level initialization and well-defined order of initialization  ✙  files compiled together in a package  ✙  package-level globals presented in any order  ✙  no arithmetic conversions (constants help)  ✙  interfaces are implicit (no "implements" declaration)  ✙  embedding (no promotion to superclass)  ✙  methods are declared as functions (no special location)  ✙  methods are just functions  ✙  interfaces are just methods (no data)  ✙  methods match by name only (not by type)  ✙  no constructors or destructors  ✙  postincrement and postdecrement are statements, not expressions  ✙  no preincrement or predecrement  ✙  assignment is not an expression  ✙  evaluation order defined in assignment, function call (no "sequence point")  ✙  no pointer arithmetic  ✙  memory is always zeroed  ✙  legal to take address of local variable  ✙  no "this" in methods  ✙  segmented stacks  ✙  no const or other type annotations  ✙  no templates  ✙  no exceptions  ✙  builtin string, slice, map  ✙ array bounds checking
+
+
+* ¿ Por qué nació Go ? 
+
+- Statically typed languages are efficient, but bureaucratic and overly complex
+
+- Dynamic languages can be easy to use, but are error prone, inefficient and can break down at scale
+
+- Concurrent programming using the traditional threaded model can be very hard (threads, locks, headache).
+
+- Speed, reliability or simplicity : pick two!
+
+- Can’t we do better?
+
+* ¿ Por qué nació Go ? 
+
+Porque necesitaban algo que cogiese lo mejor y sólo lo mejor, y nada más
+
+En gran medida quitar lo que consideraban no necesario de C y C++ para su uso en sistemas distribuidos y de alta disponibilidad en Google
+
+Y como muchas cosas nació de una opinión sobre el como avanzaba un lenguage, en este caso: C++ 11
+
+Rob Pike: _Did the C++ committee really believe that was wrong with C++ was that it didn't have enough features?_ 
+
+* ¿  Donde  nació Go  ?
+
+En Google, de ahí que originalmente se le llamase Google language 
+
+.image img/Golang.png 300 _
+
+
+* ¿  Cuando nació Go  ?
+
+Robert Griesemer, Ken Thompson, and Rob Pike started the project in late 2007.
+
+By mid 2008 the language was mostly designed and the implementation (compiler, run-time) starting to work.
+
+Ian Lance Taylor and Russ Cox joined in 2008.
+
+* ¿ Quien creó Go ?
+
+
+* Robert Griesemer
+
+.image img/robert.jpg 300 _
+
+- V8 Javascript Engine
+- Diseño de Java Hotspot
+- Strongtalk ...
+
+* Ken Thompson
+
+.image img/ken.jpg 300 _
+
+- Multics OS (60s)
+- Unix (Con Dennis Ritchie)
+- B language (the father of c)
+- UTF-8
+
+* Rob Pike
+
+.image img/rob.jpg 300 _
+
+- Plan 9
+- UTF-8
+
+* Los "principios" de Go
+
+.html html/gopher-four.html 
+
+*Simplicity*
+
+Each language feature should be easy to understand.
+
+*Orthogonality*
+
+Go’s features should interact in predictable and consistent ways.
+
+*Readability*
+
+What is written on the page should be comprehensible with little context.
+
+* Hello World
+
+.play code/001.go 
+
+* Hello World 2.0 
+
+.code code/002.go 
+
+
+* Simple type system
+
+Go is statically typed, but type inference saves repetition.
+
+Java:
+
+      Integer i = new Integer(1);
+
+C/C++:
+
+       int i = 1;
+
+Go:
+
+     i := 1 // type int
+     pi := 3.142 // type float64
+
+     greeting := "Hello, Bootcamp!" // type string
+     mul := func(x, y int) int { return x * y } // type func(int, int) int
+
+* Types and methods
+
+You can define methods on any type:
+
+	type Point struct {
+	 X, Y float64
+	}
+	func (p Point) Abs() float64 {
+	 return math.Sqrt(p.X*p.X + p.Y*p.Y)
+	}
+	p := Point{4, 3} // type Point
+	p.Abs() // == 5.0
+
+
+* Types and methods
+
+You can define methods on any type:
+
+	type MyFloat float64
+	func (m MyFloat) Abs() float64 {
+	 f := float64(m)
+	 if f < 0 {
+	 return -f
+	 }
+	 return f
+	}
+	f := MyFloat(-42)
+	f.Abs() // == 42.0
+
+Go “objects” are just values. There is no “box”.
+
+* Interfaces
+
+Interfaces specify behaviors. An interface type defines a set of methods:
+
+	type Abser interface {
+	 Abs() float64
+	}
+
+A type that implements those methods implements the interface:
+
+	func PrintAbs(a Abser) {
+	 fmt.Printf("Absolute value: %.2f\n", a.Abs())
+	}
+	PrintAbs(MyFloat(-10))
+	PrintAbs(Point{3, 4})
+
+Types implement interfaces implicitly. There is no “implements” declaration.
+
+* Interfaces in practice
+
+From the io package in the standard library:
+
+	type Writer interface {
+	 Write(p []byte) (n int, err os.Error)
+	}
+
+There are many Writer implementations throughout the standard library and other Go code. We’ve already seen an example:
+
+	func handler(w http.ResponseWriter, r ...) {
+	 fmt.Fprint(w, "Hello, "+r.URL.Path[1:])
+	}
+
+The fmt.Fprint function takes an io.Writer as its first argument, and http.ResponseWriter implements the Write method.
+
+The fmt package doesn’t know http. It just works.
+
+
+* Concurrency 
+
+In UNIX we think about processes connected by pipes:
+
+	find ~/go/src/pkg | grep _test.go$ | xargs wc -l
+
+Each tool designed to do one thing and to do it well.
+
+The Go analogue: goroutines connected by channels.
+
+* Concurrency: goroutines
+
+Goroutines are like threads:
+
+- They share memory.
+
+But cheaper:
+
+- Smaller, segmented stacks.
+- Many goroutines per operating system thread.
+
+Start a new goroutine with the go keyword:
+
+	i := pivot(s)
+	go sort(s[:i])
+	go sort(s[i:])
+
+* Concurrency: channels
+
+Channels are a typed conduit for:
+
+- Synchronization.
+- Communication.
+
+The channel operator <- is used to send and receive values:
+
+	func compute(ch chan int) {
+	 ch <- someComputation()
+	}
+	func main() {
+	 ch := make(chan int)
+	 go compute(ch)
+	 result := <-ch
+	}
+
+* Concurrency: synchronization
+
+Look back at the sort example - how to tell when it’s done? Use a channel to synchronize goroutines:
+
+	done := make(chan bool)
+	doSort := func(s []int) {
+	 sort(s)
+	 done <- true
+	}
+	i := pivot(s)
+	go doSort(s[:i])
+	go doSort(s[i:])
+	<-done
+	<-done
+
+Unbuffered channel operations are synchronous; the send/receive happens only when both sides are ready.
+
+* Concurrency: philosophy
+
+Goroutines give the efficiency of an asynchronous model,but you can write code in a synchronous style.
+
+Easier to reason about: write goroutines that do their specific jobs well, and connect them with channels.
+
+– In practice, this yields simpler and more maintainable code.
+
+Think about the concurrency issues that matter: “Don’t communicate by sharing memory.Instead, share memory by communicating.”
+
+* Rich library support
+
+Diverse, carefully-constructed, consistent standard library
+• More than 150 packages
+• Constantly under development; improving every day
+• Many great external libraries, too
+http://godashboard.appspot.com/package lists >200 packages
+• MySQL, MongoDB, and SQLite3 database drivers,
+• SDL bindings,
+• Protocol Buffers,
+• OAuth libraries,
+• and much more.
+
+* Go: What is it good for?
+
+Initially called it a “systems language.”
+• People found this confusing (oops).
+• Unexpected interest from users of scripting languages.
+– Attracted by an easy, reliable language that performs well.
+• Diverse uses across the community:
+– scientific computing,
+– web applications,
+– graphics and sound,
+– network tools,
+– and much more.
+• Now we call Go a “general-purpose language.”
+
+* Go en el mundo real™
+
+* 
+.background img/companies.png
+
+* ¿ Preguntas ?
+ 
+.image img/depende.png 500 _
+
+
+
